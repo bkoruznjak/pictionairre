@@ -7,5 +7,6 @@
   <string name="category_green">Hard</string>
   <string name="category_red">All</string>
 
+  <string name="word_or">OR</string>
   <string name="button_go">GO</string>
 </resources>

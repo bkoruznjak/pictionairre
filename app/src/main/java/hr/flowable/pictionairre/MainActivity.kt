@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
+import androidx.compose.ui.graphics.Color
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
@@ -32,9 +33,19 @@ class MainActivity : AppCompatActivity() {
     setContent {
       MaterialTheme {
         when (val screen = state.screen) {
-          Screen.CategoryOverview -> CategoryOverview()
-          Screen.DrawingTimer     -> CategoryOverview()
-          is Screen.Home          -> HomeScreen(
+          is Screen.CategoryOverview -> CategoryOverview(
+            state = screen,
+            onEvent = { state.reduce(it) }
+          )
+          is Screen.DrawingTimer     -> CategoryOverview(
+            state = Screen.CategoryOverview(
+              category = WordCategory.Actions(Color.Black, 1),
+              words = emptyList(),
+              selectedWord = ""
+            ),
+            onEvent = { state.reduce(it) }
+          )
+          is Screen.Home             -> HomeScreen(
             state = screen,
             onEvent = { state.reduce(it) })
         }
@@ -43,18 +54,25 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun handleSideEffects(state: State) {
-    this.state = when (state.navigationIntent) {
+    this.state = when (val nav = state.navigationIntent) {
       NavigationIntent.GoBack -> when (state.screen) {
-        Screen.CategoryOverview -> state.copy(screen = Screen.Home(), navigationIntent = null)
-        Screen.DrawingTimer     -> state.copy(
-          screen = Screen.CategoryOverview,
+        is Screen.CategoryOverview -> state.copy(screen = Screen.Home(), navigationIntent = null)
+        Screen.DrawingTimer        -> state.copy(
+          screen = Screen.CategoryOverview(
+            category = WordCategory.Actions(Color.Black, 1),
+            words = listOf("Rengo", "Yuumi"),
+            selectedWord = ""
+          ),
           navigationIntent = null
         )
-        is Screen.Home          -> state.copy(screen = Screen.Home(), navigationIntent = null)
+        is Screen.Home             -> state.copy(screen = Screen.Home(), navigationIntent = null)
           .also { finish() }
       }
       is NavigationIntent.GoToCategoryOverview -> state.copy(
-        screen = Screen.CategoryOverview,
+        screen = Screen.CategoryOverview(
+          category = nav.category, words = listOf("Rengo", "Yuumi"),
+          selectedWord = ""
+        ),
         navigationIntent = null
       )
       is NavigationIntent.GoToDrawingTimer -> state.copy(

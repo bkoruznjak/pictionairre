@@ -19,18 +19,27 @@ data class State(
 sealed interface Event {
   object BackButtonClicked : Event
   data class CategoryClicked(val category: WordCategory) : Event
+  data class RefreshCategoryClicked(val category: WordCategory) : Event
+  data class GoButtonClicked(val category: WordCategory) : Event
+  data class CategoryWordClicked(val word: String) : Event
 }
 
 sealed interface Screen {
   data class Home(val categories: Set<WordCategory> = regularCategories()) : Screen
-  object CategoryOverview : Screen
+
+  data class CategoryOverview(
+    val category: WordCategory,
+    val words: List<String>,
+    val selectedWord: String
+  ) : Screen
+
   object DrawingTimer : Screen
 }
 
 sealed interface NavigationIntent {
   object GoBack : NavigationIntent
   data class GoToCategoryOverview(val category: WordCategory) : NavigationIntent
-  data class GoToDrawingTimer(val word: String) : NavigationIntent
+  object GoToDrawingTimer : NavigationIntent
 }
 
 sealed class WordCategory {
@@ -73,7 +82,11 @@ fun regularCategories() = setOf(
 
 fun reduce(state: State, event: Event): State =
   when (event) {
-    BackButtonClicked -> state.copy(navigationIntent = GoBack)
-    is CategoryClicked -> state.copy(navigationIntent = GoToCategoryOverview(event.category)
-    )
+    BackButtonClicked               -> state.copy(navigationIntent = GoBack)
+    is CategoryClicked              -> state.copy(navigationIntent = GoToCategoryOverview(event.category))
+    is Event.CategoryWordClicked    -> state.copy(screen = (state.screen as? Screen.CategoryOverview)?.copy(
+      selectedWord = event.word
+    ) ?: state.screen)
+    is Event.RefreshCategoryClicked -> state
+    is Event.GoButtonClicked        -> state.copy(navigationIntent = NavigationIntent.GoToDrawingTimer)
   }
