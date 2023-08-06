@@ -18,6 +18,8 @@ class MainActivity : AppCompatActivity() {
 
   private var state: State by mutableStateOf(State(screen = Screen.Home()))
 
+  private val dataStore: DataStore by lazy { PictApp.dataStore }
+
   @Deprecated("Deprecated in Java")
   override fun onBackPressed() {
     state.reduce(Event.BackButtonClicked)
@@ -70,7 +72,8 @@ class MainActivity : AppCompatActivity() {
       }
       is NavigationIntent.GoToCategoryOverview -> state.copy(
         screen = Screen.CategoryOverview(
-          category = nav.category, words = listOf("Rengo", "Yuumi"),
+          category = nav.category,
+          words = dataStore.getWordPair(nav.category),
           selectedWord = ""
         ),
         navigationIntent = null

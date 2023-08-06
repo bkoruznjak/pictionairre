@@ -1,9 +1,10 @@
 <resources>
   <string name="app_name">Pictionairre</string>
+  <string name="app_name_shared_prefs">PictionairrePrefs</string>
 
-  <string name="category_yellow">Object</string>
+  <string name="category_yellow">Objects</string>
   <string name="category_blue">People / Places / Animals</string>
-  <string name="category_orange">Action</string>
+  <string name="category_orange">Actions</string>
   <string name="category_green">Hard</string>
   <string name="category_red">All</string>
 

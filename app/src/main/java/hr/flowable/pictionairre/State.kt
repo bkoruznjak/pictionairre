@@ -84,9 +84,16 @@ fun reduce(state: State, event: Event): State =
   when (event) {
     BackButtonClicked               -> state.copy(navigationIntent = GoBack)
     is CategoryClicked              -> state.copy(navigationIntent = GoToCategoryOverview(event.category))
-    is Event.CategoryWordClicked    -> state.copy(screen = (state.screen as? Screen.CategoryOverview)?.copy(
-      selectedWord = event.word
-    ) ?: state.screen)
-    is Event.RefreshCategoryClicked -> state
+    is Event.CategoryWordClicked    -> state.copy(
+      screen = (state.screen as? Screen.CategoryOverview)?.copy(
+        selectedWord = event.word
+      ) ?: state.screen
+    )
+    is Event.RefreshCategoryClicked -> state.copy(
+      screen = (state.screen as? Screen.CategoryOverview)?.copy(
+        words = PictApp.dataStore.getWordPair(event.category),
+        selectedWord = ""
+      ) ?: state.screen
+    )
     is Event.GoButtonClicked        -> state.copy(navigationIntent = NavigationIntent.GoToDrawingTimer)
   }

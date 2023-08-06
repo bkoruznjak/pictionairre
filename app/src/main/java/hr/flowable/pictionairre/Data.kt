@@ -2,7 +2,7 @@ package hr.flowable.pictionairre
 
 object Data {
 
-  val YellowTerms = listOf(
+  val YellowTerms = setOf(
     "Guitar",
     "Bicycle",
     "Umbrella",

@@ -19,7 +19,6 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -103,7 +102,8 @@ fun CategoryOverview(
     onClick = { onEvent(Event.GoButtonClicked(category = state.category)) },
     modifier = Modifier
       .fillMaxWidth()
-      .height(56.dp)
+      .height(56.dp),
+    enabled = state.selectedWord.isNotBlank()
   ) {
     Text(
       stringResource(id = R.string.button_go),
