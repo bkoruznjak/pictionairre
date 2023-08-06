@@ -10,4 +10,6 @@
 
   <string name="word_or">OR</string>
   <string name="button_go">GO</string>
+  <string name="button_start">START</string>
+  <string name="button_stop">STOP</string>
 </resources>

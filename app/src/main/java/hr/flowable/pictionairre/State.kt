@@ -3,17 +3,16 @@ package hr.flowable.pictionairre
 import androidx.compose.ui.graphics.Color
 import hr.flowable.pictionairre.Event.BackButtonClicked
 import hr.flowable.pictionairre.Event.CategoryClicked
-import hr.flowable.pictionairre.NavigationIntent.GoBack
-import hr.flowable.pictionairre.NavigationIntent.GoToCategoryOverview
 import hr.flowable.pictionairre.PictColors.PBlue
 import hr.flowable.pictionairre.PictColors.PGreen
 import hr.flowable.pictionairre.PictColors.POrange
 import hr.flowable.pictionairre.PictColors.PRed
 import hr.flowable.pictionairre.PictColors.PYellow
 
+private const val DRAWING_TIME_IN_SECONDS = 120L
+
 data class State(
-  val screen: Screen,
-  val navigationIntent: NavigationIntent? = null
+  val screen: Screen
 )
 
 sealed interface Event {
@@ -29,17 +28,18 @@ sealed interface Screen {
 
   data class CategoryOverview(
     val category: WordCategory,
+    val selectedWord: String,
     val words: List<String>,
-    val selectedWord: String
   ) : Screen
 
-  object DrawingTimer : Screen
-}
+  data class DrawingTimer(
+    val category: WordCategory,
+    val selectedWord: String,
+    val timeRemainingInSeconds: Long,
+    val words: List<String>,
+  ) : Screen
 
-sealed interface NavigationIntent {
-  object GoBack : NavigationIntent
-  data class GoToCategoryOverview(val category: WordCategory) : NavigationIntent
-  object GoToDrawingTimer : NavigationIntent
+  object Closing : Screen
 }
 
 sealed class WordCategory {
@@ -82,8 +82,26 @@ fun regularCategories() = setOf(
 
 fun reduce(state: State, event: Event): State =
   when (event) {
-    BackButtonClicked               -> state.copy(navigationIntent = GoBack)
-    is CategoryClicked              -> state.copy(navigationIntent = GoToCategoryOverview(event.category))
+    BackButtonClicked               -> when (state.screen) {
+      is Screen.CategoryOverview -> state.copy(screen = Screen.Home())
+      is Screen.DrawingTimer     -> state.copy(
+        screen = Screen.CategoryOverview(
+          category = state.screen.category,
+          words = state.screen.words,
+          selectedWord = state.screen.selectedWord
+        )
+      )
+      is Screen.Home             -> state.copy(screen = Screen.Closing)
+      Screen.Closing             -> state
+    }
+    is CategoryClicked              -> state.copy(
+      screen =
+      Screen.CategoryOverview(
+        category = event.category,
+        words = PictApp.dataStore.getWordPair(event.category),
+        selectedWord = ""
+      )
+    )
     is Event.CategoryWordClicked    -> state.copy(
       screen = (state.screen as? Screen.CategoryOverview)?.copy(
         selectedWord = event.word
@@ -95,5 +113,14 @@ fun reduce(state: State, event: Event): State =
         selectedWord = ""
       ) ?: state.screen
     )
-    is Event.GoButtonClicked        -> state.copy(navigationIntent = NavigationIntent.GoToDrawingTimer)
+    is Event.GoButtonClicked        -> state.copy(
+      screen = (state.screen as? Screen.CategoryOverview)?.let { categoryOverview ->
+        Screen.DrawingTimer(
+          category = categoryOverview.category,
+          words = categoryOverview.words,
+          selectedWord = categoryOverview.selectedWord,
+          timeRemainingInSeconds = DRAWING_TIME_IN_SECONDS
+        )
+      } ?: state.screen
+    )
   }
