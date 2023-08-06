@@ -49,68 +49,70 @@ fun CategoryOverview(
   state: Screen.CategoryOverview,
   onEvent: (Event) -> Unit,
   modifier: Modifier = Modifier
-) = Column(
-  modifier = modifier
-    .fillMaxSize()
-    .padding(horizontal = 16.dp),
-  horizontalAlignment = Alignment.CenterHorizontally
-) {
-  //go back + refresh button
-  Row(modifier = Modifier.fillMaxWidth()) {
-    ToolbarButton(
-      onClick = { onEvent(Event.BackButtonClicked) },
-      iconRes = R.drawable.ic_back
-    )
+) = BackgroundWithImage {
+  Column(
+    modifier = modifier
+      .fillMaxSize()
+      .padding(horizontal = 16.dp),
+    horizontalAlignment = Alignment.CenterHorizontally
+  ) {
+    //go back + refresh button
+    Row(modifier = Modifier.fillMaxWidth()) {
+      ToolbarButton(
+        onClick = { onEvent(Event.BackButtonClicked) },
+        iconRes = R.drawable.ic_back
+      )
 
-    Spacer(modifier.weight(1f))
+      Spacer(modifier.weight(1f))
 
-    ToolbarButton(
-      onClick = { onEvent(Event.RefreshCategoryClicked(state.category)) },
-      iconRes = R.drawable.ic_refresh
-    )
-  }
+      ToolbarButton(
+        onClick = { onEvent(Event.RefreshCategoryClicked(state.category)) },
+        iconRes = R.drawable.ic_refresh
+      )
+    }
 
-  Spacer(modifier = Modifier.height(16.dp))
-  // category name
-  CategoryItem(
-    categoryName = stringResource(id = state.category.nameResource),
-    color = state.category.color
-  )
-  Spacer(modifier = Modifier.weight(1f))
-  // word one
-
-  state.words.forEachIndexed { index, word ->
-    WordSelectable(
-      word,
-      isSelected = word.equals(state.selectedWord, ignoreCase = true),
-      onClick = { onEvent(Event.CategoryWordClicked(word)) }
-    )
     Spacer(modifier = Modifier.height(16.dp))
+    // category name
+    CategoryItem(
+      categoryName = stringResource(id = state.category.nameResource),
+      color = state.category.color
+    )
+    Spacer(modifier = Modifier.weight(1f))
+    // word one
 
-    if (index < state.words.lastIndex) {
-      Text(
-        stringResource(id = R.string.word_or),
-        style = TextStyle(color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+    state.words.forEachIndexed { index, word ->
+      WordSelectable(
+        word,
+        isSelected = word.equals(state.selectedWord, ignoreCase = true),
+        onClick = { onEvent(Event.CategoryWordClicked(word)) }
       )
       Spacer(modifier = Modifier.height(16.dp))
-    }
-  }
 
-  // go button
-  Spacer(modifier = Modifier.weight(1f))
-  Button(
-    onClick = { onEvent(Event.GoButtonClicked(category = state.category)) },
-    modifier = Modifier
-      .fillMaxWidth()
-      .height(56.dp),
-    enabled = state.selectedWord.isNotBlank()
-  ) {
-    Text(
-      stringResource(id = R.string.button_go),
-      style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
-    )
+      if (index < state.words.lastIndex) {
+        Text(
+          stringResource(id = R.string.word_or),
+          style = TextStyle(color = Color.Black, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+      }
+    }
+
+    // go button
+    Spacer(modifier = Modifier.weight(1f))
+    Button(
+      onClick = { onEvent(Event.GoButtonClicked(category = state.category)) },
+      modifier = Modifier
+        .fillMaxWidth()
+        .height(56.dp),
+      enabled = state.selectedWord.isNotBlank()
+    ) {
+      Text(
+        stringResource(id = R.string.button_go),
+        style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+      )
+    }
+    Spacer(modifier = Modifier.height(16.dp))
   }
-  Spacer(modifier = Modifier.height(16.dp))
 }
 
 @Composable

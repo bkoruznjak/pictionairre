@@ -39,99 +39,102 @@ fun DrawingTimer(
   var remainingTime by remember { mutableStateOf(state.timeRemainingInSeconds) }
   var isTimerRunning by remember { mutableStateOf(true) }
 
-  Column(
-    modifier = modifier
-      .fillMaxSize()
-      .padding(horizontal = 16.dp),
-    horizontalAlignment = Alignment.CenterHorizontally
-  ) {
-    //go back + refresh button
-    Row(modifier = Modifier.fillMaxWidth()) {
-      ToolbarButton(
-        onClick = { onEvent(Event.BackButtonClicked) },
-        iconRes = R.drawable.ic_back
+  BackgroundWithImage {
+    Column(
+      modifier = modifier
+        .fillMaxSize()
+        .padding(horizontal = 16.dp),
+      horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+      //go back + refresh button
+      Row(modifier = Modifier.fillMaxWidth()) {
+        ToolbarButton(
+          onClick = { onEvent(Event.BackButtonClicked) },
+          iconRes = R.drawable.ic_back
+        )
+
+        Spacer(modifier.weight(1f))
+      }
+
+      Spacer(modifier = Modifier.height(16.dp))
+      // category name
+      CategoryItem(
+        categoryName = stringResource(id = state.category.nameResource),
+        color = state.category.color
       )
+      Spacer(modifier = Modifier.weight(1f))
+      // word one
 
-      Spacer(modifier.weight(1f))
-    }
+      if (remainingTime == 0L) {
+        Text(
+          text = state.selectedWord,
+          style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        )
 
-    Spacer(modifier = Modifier.height(16.dp))
-    // category name
-    CategoryItem(
-      categoryName = stringResource(id = state.category.nameResource),
-      color = state.category.color
-    )
-    Spacer(modifier = Modifier.weight(1f))
-    // word one
+        Spacer(modifier = Modifier.height(16.dp))
+      }
 
-    if (remainingTime == 0L) {
-      Text(
-        text = state.selectedWord,
-        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
-      )
+      Row(modifier = Modifier.fillMaxWidth()) {
+        val wordsInWord = state.selectedWord.split(" ")
+        repeat(wordsInWord.size) {
+          Box(
+            modifier = Modifier
+              .padding(horizontal = 8.dp)
+              .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
+              .heightIn(min = 8.dp)
+              .weight(1f)
+          )
+        }
+      }
 
+      Spacer(modifier = Modifier.height(32.dp))
+      if (remainingTime != 0L) {
+        Text(
+          text = formatTimeToMinutesAndSeconds(remainingTime), style =
+          TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp)
+        )
+      }
+
+      // go button
+      Spacer(modifier = Modifier.weight(1f))
+      Button(
+        onClick = {
+          if (remainingTime != 0L) {
+            isTimerRunning = !isTimerRunning
+          } else {
+            onEvent(Event.BackButtonClicked)
+          }
+        },
+        modifier = Modifier
+          .fillMaxWidth()
+          .height(56.dp),
+        enabled = state.selectedWord.isNotBlank()
+      ) {
+        Text(
+          stringResource(
+            id =
+            when {
+              remainingTime == 0L -> R.string.button_finish
+              isTimerRunning      -> R.string.button_stop
+              else                -> R.string.button_start
+            }
+          ),
+          style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
+        )
+      }
       Spacer(modifier = Modifier.height(16.dp))
     }
 
-    Row(modifier = Modifier.fillMaxWidth()) {
-      val wordsInWord = state.selectedWord.split(" ")
-      repeat(wordsInWord.size) {
-        Box(
-          modifier = Modifier
-            .padding(horizontal = 8.dp)
-            .background(color = Color.Gray, shape = RoundedCornerShape(8.dp))
-            .heightIn(min = 8.dp)
-            .weight(1f)
-        )
-      }
-    }
-
-    Spacer(modifier = Modifier.height(32.dp))
-    if (remainingTime != 0L) {
-      Text(
-        text = formatTimeToMinutesAndSeconds(remainingTime), style =
-        TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp)
-      )
-    }
-
-    // go button
-    Spacer(modifier = Modifier.weight(1f))
-    Button(
-      onClick = {
-        if (remainingTime != 0L) {
-          isTimerRunning = !isTimerRunning
-        } else {
-          onEvent(Event.BackButtonClicked)
+    LaunchedEffect(key1 = remainingTime, key2 = isTimerRunning) {
+      when {
+        isTimerRunning && remainingTime > 0L -> {
+          delay(1000L)
+          remainingTime = remainingTime.dec()
         }
-      },
-      modifier = Modifier
-        .fillMaxWidth()
-        .height(56.dp),
-      enabled = state.selectedWord.isNotBlank()
-    ) {
-      Text(
-        stringResource(
-          id =
-          when {
-            remainingTime == 0L -> R.string.button_finish
-            isTimerRunning      -> R.string.button_stop
-            else                -> R.string.button_start
-          }
-        ),
-        style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
-      )
-    }
-    Spacer(modifier = Modifier.height(16.dp))
-  }
-
-  LaunchedEffect(key1 = remainingTime, key2 = isTimerRunning) {
-    when {
-      isTimerRunning && remainingTime > 0L -> {
-        delay(1000L)
-        remainingTime = remainingTime.dec()
       }
     }
   }
+
 }
 
 private fun formatTimeToMinutesAndSeconds(remaining: Long): String {
