@@ -1,8 +1,8 @@
 package hr.flowable.pictionairre
 
 fun main(){
-//  val has = hasDuplicates(Data.filter.toTypedArray())
-//  shuffle(Data.YellowTerms)
+  //val has = hasDuplicates(Data.filter.toTypedArray())
+//  shuffle(Data.GreenTerms)
   val all = Data.BlueTerms.take(30).union(Data.GreenTerms.take(30)).union(Data.OrangeTerms.take(30)).union(Data.YellowTerms.take(30)).toSet()
   shuffle(all)
 }
