@@ -84,13 +84,7 @@ fun reduce(state: State, event: Event): State =
   when (event) {
     BackButtonClicked               -> when (state.screen) {
       is Screen.CategoryOverview -> state.copy(screen = Screen.Home())
-      is Screen.DrawingTimer     -> state.copy(
-        screen = Screen.CategoryOverview(
-          category = state.screen.category,
-          words = state.screen.words,
-          selectedWord = state.screen.selectedWord
-        )
-      )
+      is Screen.DrawingTimer     -> state.copy(screen = Screen.Home())
       is Screen.Home             -> state.copy(screen = Screen.Closing)
       Screen.Closing             -> state
     }

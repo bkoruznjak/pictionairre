@@ -64,6 +64,15 @@ fun DrawingTimer(
     Spacer(modifier = Modifier.weight(1f))
     // word one
 
+    if (remainingTime == 0L) {
+      Text(
+        text = state.selectedWord,
+        style = TextStyle(fontWeight = FontWeight.Bold, fontSize = 24.sp)
+      )
+
+      Spacer(modifier = Modifier.height(16.dp))
+    }
+
     Row(modifier = Modifier.fillMaxWidth()) {
       val wordsInWord = state.selectedWord.split(" ")
       repeat(wordsInWord.size) {
@@ -78,23 +87,37 @@ fun DrawingTimer(
     }
 
     Spacer(modifier = Modifier.height(32.dp))
-
-    Text(
-      text = formatTimeToMinutesAndSeconds(remainingTime), style =
-      TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp)
-    )
+    if (remainingTime != 0L) {
+      Text(
+        text = formatTimeToMinutesAndSeconds(remainingTime), style =
+        TextStyle(fontWeight = FontWeight.Bold, fontSize = 32.sp)
+      )
+    }
 
     // go button
     Spacer(modifier = Modifier.weight(1f))
     Button(
-      onClick = { isTimerRunning = !isTimerRunning },
+      onClick = {
+        if (remainingTime != 0L) {
+          isTimerRunning = !isTimerRunning
+        } else {
+          onEvent(Event.BackButtonClicked)
+        }
+      },
       modifier = Modifier
         .fillMaxWidth()
         .height(56.dp),
       enabled = state.selectedWord.isNotBlank()
     ) {
       Text(
-        stringResource(id = if (isTimerRunning) R.string.button_stop else R.string.button_start),
+        stringResource(
+          id =
+          when {
+            remainingTime == 0L -> R.string.button_finish
+            isTimerRunning      -> R.string.button_stop
+            else                -> R.string.button_start
+          }
+        ),
         style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold, fontSize = 24.sp)
       )
     }
@@ -102,8 +125,8 @@ fun DrawingTimer(
   }
 
   LaunchedEffect(key1 = remainingTime, key2 = isTimerRunning) {
-    when{
-      isTimerRunning -> {
+    when {
+      isTimerRunning && remainingTime > 0L -> {
         delay(1000L)
         remainingTime = remainingTime.dec()
       }

@@ -4,10 +4,10 @@ import android.content.Context
 
 private const val WORD_COUNT_PER_ROUND = 2
 private const val PREF_KEY_YELLOW = "Yellow"
-private const val PREF_KEY_BLUE = "Yellow"
-private const val PREF_KEY_ORANGE = "Yellow"
-private const val PREF_KEY_GREEN = "Yellow"
-private const val PREF_KEY_RED = "Yellow"
+private const val PREF_KEY_BLUE = "Blue"
+private const val PREF_KEY_ORANGE = "Orange"
+private const val PREF_KEY_GREEN = "Green"
+private const val PREF_KEY_RED = "Red"
 
 class DataStore(context: Context) {
   private val sharedPrefs = context.getSharedPreferences(
@@ -28,11 +28,11 @@ class DataStore(context: Context) {
 
   fun getWordPair(category: WordCategory): List<String> {
     val existingWordsInCategory: List<String> = when (category) {
-      is WordCategory.Actions             -> throw IllegalStateException("No data found for $category")
-      is WordCategory.All                 -> throw IllegalStateException("No data found for $category")
-      is WordCategory.Hard                -> throw IllegalStateException("No data found for $category")
+      is WordCategory.Actions             -> Data.OrangeTerms
+      is WordCategory.All                 -> Data.RedTerms
+      is WordCategory.Hard                -> Data.GreenTerms
       is WordCategory.Objects             -> Data.YellowTerms
-      is WordCategory.PeoplePlacesAnimals -> throw IllegalStateException("No data found for $category")
+      is WordCategory.PeoplePlacesAnimals -> Data.BlueTerms
     }.shuffled()
 
     val prefKey = category.toPrefKey()
