@@ -1,8 +1,9 @@
 package hr.flowable.pictionairre
 
-import androidx.appcompat.app.AppCompatActivity
+import android.media.MediaPlayer
 import android.os.Bundle
 import androidx.activity.compose.setContent
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.MaterialTheme
@@ -53,12 +54,26 @@ class MainActivity : AppCompatActivity() {
   }
 
   private fun handleSideEffects(state: State) =
-    when (state.screen) {
-      Screen.Closing -> finish()
-      else           -> Unit
+    when {
+      state.screen is Screen.Closing -> finish()
+      state.soundEffect != null      -> play(state.soundEffect).also { state.reduce(Event.RemoveSoundEffect) }
+      else                           -> Unit
     }
 
   private fun State.reduce(event: Event) {
     this@MainActivity.state = reduce(this, event)
+  }
+
+  private fun play(soundEffect: SoundEffect) {
+    try {
+      MediaPlayer.create(this@MainActivity, soundEffect.resource).also {
+        it.start()
+        it.setOnCompletionListener {
+          it.release()
+        }
+      }
+    } catch (e: Exception) {
+      e.printStackTrace()
+    }
   }
 }

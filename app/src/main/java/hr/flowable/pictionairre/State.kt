@@ -1,5 +1,6 @@
 package hr.flowable.pictionairre
 
+import androidx.annotation.RawRes
 import androidx.compose.ui.graphics.Color
 import hr.flowable.pictionairre.Event.BackButtonClicked
 import hr.flowable.pictionairre.Event.CategoryClicked
@@ -9,11 +10,26 @@ import hr.flowable.pictionairre.PictColors.POrange
 import hr.flowable.pictionairre.PictColors.PRed
 import hr.flowable.pictionairre.PictColors.PYellow
 
-private const val DRAWING_TIME_IN_SECONDS = 120L
+private const val DRAWING_TIME_IN_SECONDS = 60L
 
 data class State(
-  val screen: Screen
+  val screen: Screen,
+  val soundEffect: SoundEffect? = null
 )
+
+sealed interface SoundEffect {
+
+  val resource: Int
+
+  @JvmInline
+  value class WarningShort(@RawRes override val resource: Int = R.raw.crosswalk) : SoundEffect
+
+  @JvmInline
+  value class TimeOut(@RawRes override val resource: Int = R.raw.finale) : SoundEffect
+
+  @JvmInline
+  value class TimeOutSad(@RawRes override val resource: Int = R.raw.sad) : SoundEffect
+}
 
 sealed interface Event {
   object BackButtonClicked : Event
@@ -21,6 +37,8 @@ sealed interface Event {
   data class RefreshCategoryClicked(val category: WordCategory) : Event
   data class GoButtonClicked(val category: WordCategory) : Event
   data class CategoryWordClicked(val word: String) : Event
+  object RemoveSoundEffect : Event
+  data class SecondExpired(val remainingTime: Long) : Event
 }
 
 sealed interface Screen {
@@ -117,4 +135,10 @@ fun reduce(state: State, event: Event): State =
         )
       } ?: state.screen
     )
+    is Event.RemoveSoundEffect      -> state.copy(soundEffect = null)
+    is Event.SecondExpired          -> when (event.remainingTime) {
+      0L                          -> state.copy(soundEffect = SoundEffect.TimeOutSad())
+      DRAWING_TIME_IN_SECONDS / 2 -> state.copy(soundEffect = SoundEffect.WarningShort())
+      else                        -> state
+    }
   }

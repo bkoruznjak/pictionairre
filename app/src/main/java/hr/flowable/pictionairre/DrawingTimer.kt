@@ -130,6 +130,7 @@ fun DrawingTimer(
         isTimerRunning && remainingTime > 0L -> {
           delay(1000L)
           remainingTime = remainingTime.dec()
+          onEvent(Event.SecondExpired(remainingTime))
         }
       }
     }
